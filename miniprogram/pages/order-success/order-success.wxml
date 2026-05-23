@@ -1,0 +1,26 @@
+<view class="success-page">
+  <view class="success-card">
+    <view class="success-icon">✅</view>
+    <view class="success-title">下单成功！</view>
+    <view class="success-sub">请稍候，咖啡师正在为您用心制作</view>
+
+    <view class="order-info">
+      <view class="info-row">
+        <text class="info-label">订单号</text>
+        <text class="info-val mono">{{orderNo}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">实付金额</text>
+        <text class="info-val price">¥{{total}}</text>
+      </view>
+    </view>
+
+    <view class="coffee-anim">☕</view>
+    <view class="wait-text">您的咖啡正在准备中，请在取餐处等候叫号~</view>
+  </view>
+
+  <view class="action-btns">
+    <view class="btn-secondary" bindtap="goOrders">查看订单</view>
+    <view class="btn-primary-custom" bindtap="goHome">继续点单</view>
+  </view>
+</view>

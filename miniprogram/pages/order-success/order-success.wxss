@@ -1,0 +1,120 @@
+.success-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #6b4226 0%, #fdf6f0 40%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 30rpx;
+}
+
+.success-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx 36rpx;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8rpx 40rpx rgba(107, 66, 38, 0.15);
+}
+
+.success-icon {
+  font-size: 100rpx;
+  margin-bottom: 16rpx;
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  80% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.success-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.success-sub {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 32rpx;
+}
+
+.order-info {
+  width: 100%;
+  background: #fdf6f0;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 0;
+}
+
+.info-label { font-size: 26rpx; color: #999; }
+
+.info-val {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.info-val.mono { font-family: monospace; font-size: 24rpx; }
+.info-val.price { font-size: 36rpx; font-weight: 700; color: #6b4226; }
+
+.coffee-anim {
+  font-size: 72rpx;
+  margin-bottom: 16rpx;
+  animation: steam 2s ease-in-out infinite;
+}
+
+@keyframes steam {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-10rpx) rotate(5deg); }
+}
+
+.wait-text {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.action-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+  width: 100%;
+}
+
+.btn-secondary {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border: 2rpx solid #6b4226;
+  color: #6b4226;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  background: #fff;
+}
+
+.btn-primary-custom {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background: linear-gradient(135deg, #6b4226, #c4956a);
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}

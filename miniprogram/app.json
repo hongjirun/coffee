@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/order/order",
+    "pages/guide/guide"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#6B4226",
+    "navigationBarTitleText": "咖啡角",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FDF6F0"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

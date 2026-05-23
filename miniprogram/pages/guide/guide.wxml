@@ -1,0 +1,67 @@
+<view class="guide-page">
+  <view class="hero">
+    <text class="hero-icon">☕</text>
+    <text class="hero-title">如何下单？</text>
+    <text class="hero-sub">简单3步，咖啡送到你手边</text>
+  </view>
+
+  <view class="steps">
+    <view class="step-card">
+      <view class="step-num">01</view>
+      <view class="step-body">
+        <view class="step-title">选择商品和口味</view>
+        <view class="step-desc">在点单页找到喜欢的咖啡，点击右下角「+」按钮，选择杯型、温度、糖度，还可以加料哦~</view>
+      </view>
+      <text class="step-emoji">🥤</text>
+    </view>
+
+    <view class="step-arrow">↓</view>
+
+    <view class="step-card">
+      <view class="step-num">02</view>
+      <view class="step-body">
+        <view class="step-title">填写配送信息</view>
+        <view class="step-desc">填写您的姓名和详细地址（楼栋门牌号），方便我们准确配送到您手中。</view>
+      </view>
+      <text class="step-emoji">📍</text>
+    </view>
+
+    <view class="step-arrow">↓</view>
+
+    <view class="step-card">
+      <view class="step-num">03</view>
+      <view class="step-body">
+        <view class="step-title">发送订单到群里</view>
+        <view class="step-desc">点击「转发到群」将订单卡片发送到我们的服务群，或点「复制订单」粘贴到群聊，完成付款后我们马上开始制作！</view>
+      </view>
+      <text class="step-emoji">📤</text>
+    </view>
+  </view>
+
+  <view class="notice-card">
+    <view class="notice-title">📌 温馨提示</view>
+    <view class="notice-item">• 由于是个人小店，暂不支持小程序直接付款</view>
+    <view class="notice-item">• 请在群里完成付款后，我们才开始制作</view>
+    <view class="notice-item">• 支持微信转账 / 扫码支付</view>
+    <view class="notice-item">• 配送范围请咨询群主</view>
+    <view class="notice-item">• 如有特殊需求可在订单备注中说明</view>
+  </view>
+
+  <!-- 二维码区域 -->
+  <view class="qrcode-card" wx:if="{{qrcodes.wechat_group_qrcode || qrcodes.wechat_pay_qrcode}}">
+    <view class="qrcode-title">📱 扫码联系 / 支付</view>
+    <view class="qrcode-list">
+      <view class="qrcode-item" wx:if="{{qrcodes.wechat_group_qrcode}}" bindtap="previewQrcode" data-url="{{qrcodes.wechat_group_qrcode}}">
+        <image class="qrcode-img" src="{{qrcodes.wechat_group_qrcode}}" mode="aspectFit" />
+        <view class="qrcode-text">微信群聊</view>
+      </view>
+      <view class="qrcode-item" wx:if="{{qrcodes.wechat_pay_qrcode}}" bindtap="previewQrcode" data-url="{{qrcodes.wechat_pay_qrcode}}">
+        <image class="qrcode-img" src="{{qrcodes.wechat_pay_qrcode}}" mode="aspectFit" />
+        <view class="qrcode-text">微信支付</view>
+      </view>
+    </view>
+    <view class="qrcode-tip">点击图片可放大查看</view>
+  </view>
+
+  <view class="go-btn" bindtap="goOrder">开始点单 ☕</view>
+</view>

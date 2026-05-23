@@ -1,0 +1,124 @@
+<view class="product-page" wx:if="{{!loading && product}}">
+  <!-- 商品图片 -->
+  <view class="product-hero">
+    <image class="hero-img" src="{{product.image}}" mode="aspectFill" wx:if="{{product.image}}" />
+    <view class="hero-empty" wx:else>
+      <text class="hero-icon">☕</text>
+    </view>
+  </view>
+
+  <!-- 商品信息 -->
+  <view class="product-body">
+    <view class="product-header">
+      <view class="product-name">{{product.name}}</view>
+      <view class="product-price">
+        <text class="price-symbol">¥</text>
+        <text class="price-num">{{product.base_price}}</text>
+        <text class="price-tip" wx:if="{{product.size_options && product.size_options.length > 1}}">起</text>
+      </view>
+    </view>
+    <view class="product-desc" wx:if="{{product.description}}">{{product.description}}</view>
+
+    <!-- 杯型规格 -->
+    <view class="option-section" wx:if="{{product.size_options && product.size_options.length > 0}}">
+      <view class="option-title">
+        <text class="option-label">杯型选择</text>
+        <text class="option-required">必选</text>
+      </view>
+      <view class="option-tags">
+        <view
+          class="option-tag {{selectedSize && selectedSize.name === item.name ? 'selected' : ''}}"
+          wx:for="{{product.size_options}}"
+          wx:key="name"
+          data-size="{{item}}"
+          bindtap="onSizeSelect"
+        >
+          <text class="tag-name">{{item.name}}</text>
+          <text class="tag-price" wx:if="{{item.price > 0}}">+¥{{item.price}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 糖度 -->
+    <view class="option-section" wx:if="{{product.sugar_options && product.sugar_options.length > 0}}">
+      <view class="option-title">
+        <text class="option-label">甜度选择</text>
+        <text class="option-required">必选</text>
+      </view>
+      <view class="option-tags">
+        <view
+          class="option-tag {{selectedSugar === item ? 'selected' : ''}}"
+          wx:for="{{product.sugar_options}}"
+          wx:key="*this"
+          data-val="{{item}}"
+          bindtap="onSugarSelect"
+        >
+          <text class="tag-name">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 冰度 -->
+    <view class="option-section" wx:if="{{product.ice_options && product.ice_options.length > 0}}">
+      <view class="option-title">
+        <text class="option-label">冰度选择</text>
+        <text class="option-required">必选</text>
+      </view>
+      <view class="option-tags">
+        <view
+          class="option-tag {{selectedIce === item ? 'selected' : ''}}"
+          wx:for="{{product.ice_options}}"
+          wx:key="*this"
+          data-val="{{item}}"
+          bindtap="onIceSelect"
+        >
+          <text class="tag-name">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加料 -->
+    <view class="option-section" wx:if="{{product.addon_options && product.addon_options.length > 0}}">
+      <view class="option-title">
+        <text class="option-label">加料选择</text>
+        <text class="option-optional">可多选</text>
+      </view>
+      <view class="option-tags">
+        <view
+          class="option-tag addon-tag {{selectedAddons.length > 0 && selectedAddons.findIndex ? '' : ''}} {{item._selected ? 'selected' : ''}}"
+          wx:for="{{product.addon_options}}"
+          wx:key="name"
+          data-addon="{{item}}"
+          bindtap="onAddonToggle"
+        >
+          <text class="tag-name">{{item.name}}</text>
+          <text class="tag-price">+¥{{item.price}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 数量 -->
+    <view class="quantity-section">
+      <text class="option-label">数量</text>
+      <view class="quantity-ctrl">
+        <view class="qty-btn {{quantity <= 1 ? 'disabled' : ''}}" data-type="minus" bindtap="onQuantityChange">−</view>
+        <text class="qty-num">{{quantity}}</text>
+        <view class="qty-btn" data-type="plus" bindtap="onQuantityChange">+</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部加购栏 -->
+  <view class="bottom-bar">
+    <view class="total-info">
+      <text class="total-label">合计</text>
+      <text class="total-price">¥{{totalPrice}}</text>
+    </view>
+    <view class="add-cart-btn" bindtap="addToCart">加入购物车</view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-page" wx:if="{{loading}}">
+  <text>☕ 加载中...</text>
+</view>

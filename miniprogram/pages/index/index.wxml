@@ -1,0 +1,201 @@
+<view class="index-page">
+  <!-- 顶部Banner -->
+  <view class="banner">
+    <view class="banner-content">
+      <view class="shop-name">咖啡角</view>
+      <view class="banner-desc">今日特调，每一口都是幸福☕</view>
+    </view>
+    <view class="guide-btn" bindtap="goGuide">下单说明</view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-icon">☕</view>
+    <text>正在加载菜单...</text>
+  </view>
+
+  <!-- 分类 + 商品布局 -->
+  <view class="content-area" wx:if="{{!loading}}">
+    <!-- 左侧分类 -->
+    <scroll-view class="category-list" scroll-y>
+      <view
+        class="category-item {{activeCategory === item.id ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCategoryTap"
+      >{{item.name}}</view>
+    </scroll-view>
+
+    <!-- 右侧商品 -->
+    <scroll-view class="product-list" scroll-y>
+      <view wx:if="{{products.length === 0}}" class="empty-state">
+        <text class="empty-icon">☕</text>
+        <text class="empty-text">暂无商品</text>
+      </view>
+      <view class="product-card" wx:for="{{products}}" wx:key="id">
+        <image class="product-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}" />
+        <view class="product-img-empty" wx:else>☕</view>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          <view class="product-bottom">
+            <view class="product-price">
+              <text class="price-symbol">¥</text>
+              <text class="price-num">{{item.base_price}}</text>
+              <text class="price-up">起</text>
+            </view>
+            <view class="add-btn" data-product="{{item}}" catchtap="onOpenPanel">+</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 遮罩 -->
+  <view class="mask" wx:if="{{showPanel}}" bindtap="onClosePanel" />
+
+  <!-- 底部弹出选项面板 -->
+  <view class="panel {{showPanel ? 'panel-show' : ''}}">
+    <view wx:if="{{currentProduct}}">
+
+      <!-- 商品信息头 -->
+      <view class="panel-header">
+        <image class="panel-img" src="{{currentProduct.image}}" mode="aspectFill" wx:if="{{currentProduct.image}}" />
+        <view class="panel-img-empty" wx:else>☕</view>
+        <view class="panel-product-text">
+          <text class="panel-name">{{currentProduct.name}}</text>
+          <text class="panel-price">¥{{totalPrice}}</text>
+        </view>
+        <view class="panel-close" bindtap="onClosePanel">✕</view>
+      </view>
+
+      <!-- 第一步：选参数 -->
+      <scroll-view scroll-y class="panel-scroll" wx:if="{{!showOrderForm && !orderReady}}">
+
+        <view class="opt-section" wx:if="{{currentProduct.sizeOptions.length > 0}}">
+          <text class="opt-title">杯型</text>
+          <view class="opt-tags">
+            <view
+              class="opt-tag {{selectedSize.name === item.name ? 'selected' : ''}}"
+              wx:for="{{currentProduct.sizeOptions}}" wx:key="name"
+              data-item="{{item}}" bindtap="onSelectSize"
+            >
+              <text class="tag-name">{{item.name}}</text>
+              <text class="tag-price" wx:if="{{item.price > 0}}">+¥{{item.price}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="opt-section" wx:if="{{currentProduct.iceOptions.length > 0}}">
+          <text class="opt-title">温度</text>
+          <view class="opt-tags">
+            <view
+              class="opt-tag {{selectedIce.name === item.name ? 'selected' : ''}}"
+              wx:for="{{currentProduct.iceOptions}}" wx:key="name"
+              data-item="{{item}}" bindtap="onSelectIce"
+            >
+              <text class="tag-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="opt-section" wx:if="{{currentProduct.sugarOptions.length > 0}}">
+          <text class="opt-title">糖度</text>
+          <view class="opt-tags">
+            <view
+              class="opt-tag {{selectedSugar.name === item.name ? 'selected' : ''}}"
+              wx:for="{{currentProduct.sugarOptions}}" wx:key="name"
+              data-item="{{item}}" bindtap="onSelectSugar"
+            >
+              <text class="tag-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="opt-section" wx:if="{{currentProduct.addonOptions.length > 0}}">
+          <text class="opt-title">加料 <text class="opt-optional">可多选</text></text>
+          <view class="opt-tags">
+            <view
+              class="opt-tag"
+              wx:for="{{currentProduct.addonOptions}}" wx:key="name"
+              data-item="{{item}}" bindtap="onToggleAddon"
+            >
+              <text class="tag-name">{{item.name}}</text>
+              <text class="tag-price" wx:if="{{item.price > 0}}">+¥{{item.price}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="opt-section quantity-row">
+          <text class="opt-title">数量</text>
+          <view class="qty-ctrl">
+            <view class="qty-btn {{quantity <= 1 ? 'disabled' : ''}}" bindtap="onQuantityMinus">−</view>
+            <text class="qty-num">{{quantity}}</text>
+            <view class="qty-btn" bindtap="onQuantityPlus">+</view>
+          </view>
+        </view>
+        <view style="height: 20rpx;"></view>
+      </scroll-view>
+
+      <!-- 第二步：填地址 -->
+      <view class="order-form" wx:if="{{showOrderForm && !orderReady}}">
+        <view class="form-tips">📝 填写收货信息后即可生成订单发到群里</view>
+        <view class="form-row">
+          <text class="form-label">姓名</text>
+          <input class="form-input" placeholder="您的称呼" bindinput="onNameInput" value="{{customerName}}" />
+        </view>
+
+        <!-- 地址：微信选择 + 补充门牌 -->
+        <view class="form-row addr-pick-row" bindtap="onChooseAddress">
+          <text class="form-label">地址</text>
+          <view class="addr-pick-btn" wx:if="{{!chosenAddress}}">
+            <text class="addr-pick-icon">📍</text>
+            <text class="addr-pick-text">点击选择微信地址</text>
+            <text class="addr-pick-arrow">›</text>
+          </view>
+          <view class="addr-chosen" wx:else>
+            <text class="addr-chosen-name">{{chosenAddress.userName}} {{chosenAddress.telNumber}}</text>
+            <text class="addr-chosen-detail">{{chosenAddress.provinceName}}{{chosenAddress.cityName}}{{chosenAddress.countyName}}{{chosenAddress.detailInfo}}</text>
+            <text class="addr-reselect">重选 ›</text>
+          </view>
+        </view>
+
+        <!-- 补充门牌号（始终显示） -->
+        <view class="form-row">
+          <text class="form-label">备注</text>
+          <input
+            class="form-input"
+            placeholder="楼栋/单元/房号/备注（选填）"
+            bindinput="onDetailInput"
+            value="{{addressDetail}}"
+          />
+        </view>
+      </view>
+
+      <!-- 第三步：订单确认 -->
+      <view class="order-summary" wx:if="{{orderReady && orderSummary}}">
+        <view class="summary-title">📋 订单详情</view>
+        <view class="summary-card">
+          <view class="summary-line" wx:for="{{orderSummary.lines}}" wx:key="*this">{{item}}</view>
+        </view>
+        <view class="summary-tip">将订单发到群里 → 完成付款 → 等待配送 🚀</view>
+      </view>
+
+      <!-- 底部按钮 -->
+      <view class="panel-footer">
+        <view class="btn-full" bindtap="onConfirmOptions" wx:if="{{!showOrderForm && !orderReady}}">
+          确认选项 · ¥{{totalPrice}}
+        </view>
+        <view class="btn-full" bindtap="onGenerateOrder" wx:if="{{showOrderForm && !orderReady}}">
+          生成订单
+        </view>
+        <view class="btn-row" wx:if="{{orderReady}}">
+          <view class="btn-copy" bindtap="onCopyOrder">📋 复制订单</view>
+          <button class="btn-share" open-type="share">📤 转发到群</button>
+        </view>
+      </view>
+
+    </view>
+  </view>
+</view>
