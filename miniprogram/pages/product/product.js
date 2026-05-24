@@ -5,17 +5,20 @@ Page({
   data: {
     product: null,
     loading: true,
+    reviewMode: false,
     // 用户选择
     selectedSize: null,
     selectedSugar: '',
     selectedIce: '',
     selectedAddons: [],
     quantity: 1,
-    totalPrice: 0
+    totalPrice: 0,
+    currentSizeImage: ''
   },
 
   onLoad(options) {
-    const { id } = options
+    const { id, review } = options
+    this.setData({ reviewMode: review === '1' })
     this.loadProduct(id)
   },
 
@@ -32,7 +35,8 @@ Page({
       const selectedIce = product.ice_options && product.ice_options.length > 0
         ? product.ice_options[2] || product.ice_options[0] : ''
 
-      this.setData({ product, selectedSize, selectedSugar, selectedIce, loading: false })
+      const currentSizeImage = selectedSize?.name === '大杯' ? (product.large_image || '') : (product.medium_image || '')
+      this.setData({ product, selectedSize, selectedSugar, selectedIce, loading: false, currentSizeImage })
       this.calcTotal()
     } catch {
       this.setData({ loading: false })
@@ -41,7 +45,9 @@ Page({
 
   onSizeSelect(e) {
     const size = e.currentTarget.dataset.size
-    this.setData({ selectedSize: size })
+    const product = this.data.product
+    const currentSizeImage = size?.name === '大杯' ? (product.large_image || '') : (product.medium_image || '')
+    this.setData({ selectedSize: size, currentSizeImage })
     this.calcTotal()
   },
 

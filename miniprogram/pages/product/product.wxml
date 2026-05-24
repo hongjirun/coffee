@@ -1,7 +1,7 @@
 <view class="product-page" wx:if="{{!loading && product}}">
-  <!-- 商品图片 -->
+  <!-- 商品图片（正常模式根据杯型切换，审核模式固定显示默认图） -->
   <view class="product-hero">
-    <image class="hero-img" src="{{product.image}}" mode="aspectFill" wx:if="{{product.image}}" />
+    <image class="hero-img" src="{{reviewMode ? product.image : (currentSizeImage || product.image)}}" mode="aspectFill" wx:if="{{product.image || currentSizeImage}}" />
     <view class="hero-empty" wx:else>
       <text class="hero-icon">☕</text>
     </view>
@@ -97,6 +97,18 @@
       </view>
     </view>
 
+    <!-- 杯形+包装双图区（审核模式不显示） -->
+    <view class="product-images-row" wx:if="{{!reviewMode && (currentSizeImage || product.package_image)}}">
+      <view class="product-img-item" wx:if="{{currentSizeImage}}">
+        <image src="{{currentSizeImage}}" mode="aspectFill" class="product-img-thumb" />
+        <text class="product-img-label">{{selectedSize.name || ''}} 杯形</text>
+      </view>
+      <view class="product-img-item" wx:if="{{product.package_image}}">
+        <image src="{{product.package_image}}" mode="aspectFill" class="product-img-thumb" />
+        <text class="product-img-label">包装</text>
+      </view>
+    </view>
+
     <!-- 数量 -->
     <view class="quantity-section">
       <text class="option-label">数量</text>
@@ -108,8 +120,8 @@
     </view>
   </view>
 
-  <!-- 底部加购栏 -->
-  <view class="bottom-bar">
+  <!-- 底部加购栏（审核模式隐藏） -->
+  <view class="bottom-bar" wx:if="{{!reviewMode}}">
     <view class="total-info">
       <text class="total-label">合计</text>
       <text class="total-price">¥{{totalPrice}}</text>

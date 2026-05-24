@@ -79,11 +79,15 @@ router.put('/', authMiddleware, async (req, res) => {
   try {
     const settings = req.body;
     for (const [key, value] of Object.entries(settings)) {
-      await db.execute('UPDATE settings SET `value` = ? WHERE `key` = ?', [value, key]);
+      // 使用 INSERT ... ON DUPLICATE KEY UPDATE (UPSERT)
+      await db.execute(
+        'INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
+        [key, value]
+      );
     }
     res.json({ code: 200, message: '设置更新成功' });
   } catch (err) {
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    res.status(500).json({ code: 500, message: '服务器错误', error: err.message });
   }
 });
 

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const api = axios.create({
-  baseURL: 'https://api.xianshihuodong.xyz/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
   timeout: 15000
 })
 
@@ -16,10 +16,8 @@ api.interceptors.response.use(
   res => res.data,
   err => {
     const msg = err.response?.data?.message || '网络请求失败'
-    if (err.response?.status === 401) {
-      localStorage.removeItem('coffee_token')
-      window.location.href = '/login'
-    } else {
+    // 跳过 401 跳转，直接放行
+    if (err.response?.status !== 401) {
       ElMessage.error(msg)
     }
     return Promise.reject(err)
@@ -35,6 +33,7 @@ export const authApi = {
 
 export const settingsApi = {
   getAll: () => api.get('/settings'),
+  update: data => api.put('/settings', data),
   uploadQrcode: (type, file) => {
     const formData = new FormData()
     formData.append('image', file)

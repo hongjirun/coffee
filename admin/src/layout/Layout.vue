@@ -13,7 +13,7 @@
         <div class="logo-icon">☕</div>
         <transition name="fade">
           <div v-if="!isCollapsed" class="logo-text">
-            <span class="logo-title">凌小巧咖啡店</span>
+            <span class="logo-title">咖啡角</span>
             <span class="logo-subtitle">后台管理系统</span>
           </div>
         </transition>
@@ -69,23 +69,6 @@
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>{{ currentTitle }}</el-breadcrumb-item>
           </el-breadcrumb>
-        </div>
-        <div class="topbar-right">
-          <el-dropdown @command="handleCommand">
-            <div class="admin-info">
-              <el-avatar :size="32" style="background: #6B4226;">
-                {{ authStore.admin?.username?.charAt(0).toUpperCase() }}
-              </el-avatar>
-              <span class="admin-name">{{ authStore.admin?.username }}</span>
-              <el-icon><ArrowDown /></el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="settings">账号设置</el-dropdown-item>
-                <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </div>
       </el-header>
 

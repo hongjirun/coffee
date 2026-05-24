@@ -1,6 +1,23 @@
 <view class="cart-page">
+
+  <!-- 订单完成：复制/转发到群 -->
+  <view class="order-done" wx:if="{{orderDone && orderSummary}}">
+    <view class="done-icon">✅</view>
+    <view class="done-title">订单已生成！</view>
+    <view class="done-tip">复制下方订单发到群里，完成付款即可</view>
+    <view class="summary-card">
+      <view class="summary-line" wx:for="{{orderSummary.lines}}" wx:key="*this">{{item}}</view>
+    </view>
+    <view class="privacy-tip">🔒 收件人及地址已加密，转发到群后仅商家后台可见，群成员无法查看您的个人信息</view>
+    <view class="done-btns">
+      <view class="btn-copy" bindtap="onCopyOrder">📋 复制订单</view>
+      <button class="btn-share" open-type="share">📤 转发到群</button>
+    </view>
+    <view class="btn-back" bindtap="goHome">继续点单</view>
+  </view>
+
   <!-- 空购物车 -->
-  <view class="empty-cart" wx:if="{{cart.length === 0}}">
+  <view class="empty-cart" wx:if="{{cart.length === 0 && !orderDone && !submitting}}">
     <text class="empty-icon">🛒</text>
     <text class="empty-title">购物车是空的</text>
     <text class="empty-sub">去点一杯属于你的咖啡吧</text>
@@ -8,7 +25,7 @@
   </view>
 
   <!-- 有商品 -->
-  <block wx:else>
+  <block wx:if="{{cart.length > 0 && !orderDone}}">
     <!-- 商品列表 -->
     <view class="cart-header">
       <text class="cart-title">已选商品</text>
@@ -44,36 +61,38 @@
       </view>
     </view>
 
-    <!-- 备注和联系方式 -->
+    <!-- 收货信息 -->
     <view class="order-form">
-      <view class="form-title">订单信息</view>
+      <view class="form-tips">📝 填写收货信息后即可生成订单发到群里</view>
       <view class="form-item">
         <text class="form-label">姓名</text>
         <input
           class="form-input"
           value="{{customerName}}"
-          placeholder="您的称呼（选填）"
+          placeholder="您的称呼"
           bindinput="onNameInput"
         />
       </view>
+      <view class="form-item addr-pick-row" bindtap="onChooseAddress">
+        <text class="form-label">地址</text>
+        <view class="addr-pick-btn" wx:if="{{!chosenAddress}}">
+          <text class="addr-pick-icon">📍</text>
+          <text class="addr-pick-text">点击选择微信地址</text>
+          <text class="addr-pick-arrow">›</text>
+        </view>
+        <view class="addr-chosen" wx:else>
+          <text class="addr-chosen-name">{{chosenAddress.userName}} {{chosenAddress.telNumber}}</text>
+          <text class="addr-chosen-detail">{{chosenAddress.provinceName}}{{chosenAddress.cityName}}{{chosenAddress.countyName}}{{chosenAddress.detailInfo}}</text>
+          <text class="addr-reselect">重选 ›</text>
+        </view>
+      </view>
       <view class="form-item">
-        <text class="form-label">手机号</text>
+        <text class="form-label">备注</text>
         <input
           class="form-input"
-          value="{{customerPhone}}"
-          placeholder="联系电话（选填）"
-          type="number"
-          bindinput="onPhoneInput"
-        />
-      </view>
-      <view class="form-item remark-item">
-        <text class="form-label">备注</text>
-        <textarea
-          class="form-textarea"
           value="{{remark}}"
-          placeholder="特殊要求、口味偏好...（选填）"
+          placeholder="楼栋/单元/房号/备注（选填）"
           bindinput="onRemarkInput"
-          maxlength="100"
         />
       </view>
     </view>

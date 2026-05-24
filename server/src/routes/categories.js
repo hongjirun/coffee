@@ -57,20 +57,18 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// 删除分类
+// 删除分类（硬删除，级联删商品和订单明细）
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    const [products] = await db.execute(
-      'SELECT COUNT(*) as cnt FROM products WHERE category_id = ?',
-      [req.params.id]
-    );
-    if (products[0].cnt > 0) {
-      return res.status(400).json({ code: 400, message: '该分类下还有商品，无法删除' });
+    const [products] = await db.execute('SELECT id FROM products WHERE category_id = ?', [req.params.id]);
+    for (const p of products) {
+      await db.execute('DELETE FROM order_items WHERE product_id = ?', [p.id]);
     }
+    await db.execute('DELETE FROM products WHERE category_id = ?', [req.params.id]);
     await db.execute('DELETE FROM categories WHERE id = ?', [req.params.id]);
     res.json({ code: 200, message: '删除成功' });
   } catch (err) {
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    res.status(500).json({ code: 500, message: '服务器错误', error: err.message });
   }
 });
 

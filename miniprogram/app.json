@@ -2,7 +2,9 @@
   "pages": [
     "pages/index/index",
     "pages/order/order",
-    "pages/guide/guide"
+    "pages/guide/guide",
+    "pages/article/article",
+    "pages/cart/cart"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -12,5 +14,8 @@
     "backgroundColor": "#FDF6F0"
   },
   "sitemapLocation": "sitemap.json",
-  "style": "v2"
+  "style": "v2",
+  "requiredPrivateInfos": [
+    "chooseAddress"
+  ]
 }

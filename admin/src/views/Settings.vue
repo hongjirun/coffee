@@ -7,31 +7,31 @@
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12">
         <el-card style="margin-bottom: 20px;">
-          <template #header><span style="font-weight: 600;">账号信息</span></template>
-          <el-form :model="usernameForm" :rules="usernameRules" ref="usernameFormRef" label-width="90px">
-            <el-form-item label="用户名" prop="username">
-              <el-input v-model="usernameForm.username" placeholder="请输入新用户名" maxlength="20" />
+          <template #header><span style="font-weight: 600;">小程序模式切换</span></template>
+          <el-form label-width="120px">
+            <el-form-item label="正常运营模式">
+              <el-switch 
+                v-model="settings.normal_mode" 
+                active-text="开启"
+                inactive-text="关闭"
+                @change="handleNormalModeToggle"
+              />
+              <div style="font-size: 12px; color: #999; margin-top: 8px;">
+                开启后：商品可点击下单，显示分享按钮（日常运营使用）
+              </div>
             </el-form-item>
-            <el-form-item>
-              <el-button type="primary" :loading="usernameLoading" @click="handleChangeUsername">修改用户名</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-
-        <el-card>
-          <template #header><span style="font-weight: 600;">修改密码</span></template>
-          <el-form :model="pwdForm" :rules="pwdRules" ref="pwdFormRef" label-width="90px">
-            <el-form-item label="原密码" prop="oldPassword">
-              <el-input v-model="pwdForm.oldPassword" type="password" show-password placeholder="请输入原密码" />
-            </el-form-item>
-            <el-form-item label="新密码" prop="newPassword">
-              <el-input v-model="pwdForm.newPassword" type="password" show-password placeholder="至少6位" />
-            </el-form-item>
-            <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input v-model="pwdForm.confirmPassword" type="password" show-password placeholder="再次输入新密码" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" :loading="pwdLoading" @click="handleChangePwd">修改密码</el-button>
+            <el-divider />
+            <el-form-item label="审核模式">
+              <el-switch 
+                v-model="settings.review_mode" 
+                active-text="开启"
+                inactive-text="关闭"
+                active-color="#e6a23c"
+                @change="handleReviewModeToggle"
+              />
+              <div style="font-size: 12px; color: #999; margin-top: 8px;">
+                开启后：商品点击展示详情页，隐藏下单和分享功能（提交审核前开启）
+              </div>
             </el-form-item>
           </el-form>
         </el-card>
@@ -101,7 +101,7 @@
             <div class="about-item">
               <span class="about-icon">☕</span>
               <div>
-                <div class="about-title">凌小巧咖啡店</div>
+                <div class="about-title">咖啡角</div>
                 <div class="about-sub">后台管理系统 v1.0.0</div>
               </div>
             </div>
@@ -197,10 +197,51 @@ const qrcodes = reactive({
   wechat_pay_qrcode: ''
 })
 
+// 功能开关设置
+const settings = reactive({
+  normal_mode: true,
+  review_mode: false
+})
+
+async function handleNormalModeToggle(val) {
+  try {
+    // 互斥：开启正常模式则关闭审核模式
+    settings.review_mode = !val
+    await settingsApi.update({
+      normal_mode: val ? 'true' : 'false',
+      review_mode: val ? 'false' : 'true'
+    })
+    ElMessage.success(val ? '已切换为正常运营模式' : '正常模式已关闭')
+  } catch {
+    ElMessage.error('设置保存失败')
+  }
+}
+
+async function handleReviewModeToggle(val) {
+  try {
+    // 互斥：开启审核模式则关闭正常模式
+    settings.normal_mode = !val
+    await settingsApi.update({
+      review_mode: val ? 'true' : 'false',
+      normal_mode: val ? 'false' : 'true'
+    })
+    ElMessage.success(val ? '已切换为审核模式，请重新编译小程序' : '审核模式已关闭')
+  } catch {
+    ElMessage.error('设置保存失败')
+  }
+}
+
 async function loadQrcodes() {
   try {
     const res = await settingsApi.getAll()
     Object.assign(qrcodes, res.data)
+    // 加载模式开关设置
+    if (res.data.normal_mode !== undefined) {
+      settings.normal_mode = res.data.normal_mode !== 'false'
+    }
+    if (res.data.review_mode !== undefined) {
+      settings.review_mode = res.data.review_mode === 'true'
+    }
   } catch {}
 }
 

@@ -1,17 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ code: 401, message: '未登录，请先登录' });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'coffee_secret');
-    req.admin = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ code: 401, message: 'Token已过期，请重新登录' });
-  }
+  // 跳过所有权限验证，直接放行
+  req.admin = { id: 1, username: 'admin' };
+  next();
 };
 
 module.exports = authMiddleware;

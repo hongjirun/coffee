@@ -12,7 +12,8 @@ Page({
     mode: 'list',
     order: null,
     orders: [],
-    loading: true
+    loading: true,
+    shared: false
   },
 
   onLoad(options) {
@@ -42,7 +43,7 @@ Page({
             : '无'
         })
       }
-      this.setData({ order, loading: false })
+      this.setData({ order, loading: false, shared: false })
     } catch {
       wx.showToast({ title: '订单不存在', icon: 'none' })
       this.setData({ loading: false })
@@ -56,5 +57,17 @@ Page({
 
   goHome() {
     wx.navigateTo({ url: '/pages/index/index' })
+  },
+
+  toggleShare() {
+    this.setData({ shared: !this.data.shared })
+  },
+
+  onShareAppMessage() {
+    const order = this.data.order
+    return {
+      title: `订单 ${order.order_no}`,
+      path: `/pages/order/order?order_no=${order.order_no}`
+    }
   }
 })

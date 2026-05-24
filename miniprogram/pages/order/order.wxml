@@ -24,11 +24,11 @@
         </view>
         <view class="detail-row">
           <text class="detail-label">收件人</text>
-          <text class="detail-value bold">{{order.customer_name}}</text>
+          <text class="detail-value bold">{{shared ? '******' : order.customer_name}}</text>
         </view>
         <view class="detail-row">
           <text class="detail-label">备注/地址</text>
-          <text class="detail-value">{{order.remark}}</text>
+          <text class="detail-value">{{shared ? '******' : order.remark}}</text>
         </view>
       </view>
 
@@ -54,6 +54,15 @@
       <view class="detail-total">
         <text>合计金额</text>
         <text class="total-val">¥{{order.total_amount}}</text>
+      </view>
+
+      <!-- 分享按钮 -->
+      <view wx:if="{{!shared}}">
+        <button class="share-btn" bindtap="toggleShare">📤 转发订单</button>
+      </view>
+      <view wx:else class="share-action-row">
+        <button class="share-btn share-btn-cancel" bindtap="toggleShare">取消</button>
+        <button class="share-btn share-btn-confirm" open-type="share">确认转发</button>
       </view>
     </view>
   </block>

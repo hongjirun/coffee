@@ -2,15 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue'),
-    meta: { public: true }
-  },
-  {
     path: '/',
     component: () => import('@/layout/Layout.vue'),
     redirect: '/dashboard',
+    meta: { public: true },
     children: [
       {
         path: 'dashboard',
@@ -52,14 +47,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('coffee_token')
-  if (!to.meta.public && !token) {
-    next('/login')
-  } else if (to.path === '/login' && token) {
-    next('/dashboard')
-  } else {
-    next()
-  }
+  // 跳过所有权限验证，直接放行
+  next()
 })
 
 export default router

@@ -47,7 +47,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-        <el-table-column prop="created_at" label="下单时间" width="160" />
+        <el-table-column label="下单时间" width="160">
+          <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="280" fixed="right" @click.stop>
           <template #default="{ row }">
             <div style="display: flex; gap: 8px; align-items: center;">
@@ -88,7 +90,7 @@
             <div class="order-amount">¥{{ order.total_amount }}</div>
           </div>
           <div class="order-footer">
-            <span class="order-time">{{ order.created_at }}</span>
+            <span class="order-time">{{ formatTime(order.created_at) }}</span>
             <div class="order-actions" @click.stop>
               <template v-if="order.status === 'pending'">
                 <el-button size="small" type="primary" @click.stop="updateStatus(order, 'preparing')">开始制作</el-button>
@@ -141,11 +143,12 @@
           </div>
           <div class="meta-row" v-if="currentOrder.remark">
             <span class="meta-label">备注</span>
-            <span class="meta-val" style="color: #e6a23c;">{{ currentOrder.remark }}</span>
+            <span class="meta-val" style="color: #e6a23c; flex: 1;">{{ currentOrder.remark }}</span>
+            <el-button size="small" type="primary" plain @click="copyAddress(currentOrder.remark.replace(/^地址：/, ''))" style="margin-left: 8px; flex-shrink: 0;">📋 复制地址</el-button>
           </div>
           <div class="meta-row">
             <span class="meta-label">下单时间</span>
-            <span class="meta-val">{{ currentOrder.created_at }}</span>
+            <span class="meta-val">{{ formatTime(currentOrder.created_at) }}</span>
           </div>
         </div>
 
@@ -206,6 +209,13 @@ const keyword = ref('')
 const drawerVisible = ref(false)
 const currentOrder = ref(null)
 
+function formatTime(val) {
+  if (!val) return '-'
+  const d = new Date(val)
+  const pad = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
 const statusMap = {
   pending: '待制作',
   preparing: '制作中',
@@ -242,6 +252,20 @@ async function handleDelete(id) {
     ElMessage.success('订单删除成功')
     loadData()
   } catch {}
+}
+
+function copyAddress(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    ElMessage.success('地址已复制，可直接导航')
+  }).catch(() => {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+    ElMessage.success('地址已复制，可直接导航')
+  })
 }
 
 async function viewOrder(row) {

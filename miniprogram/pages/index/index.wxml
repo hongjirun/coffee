@@ -1,55 +1,129 @@
 <view class="index-page">
-  <!-- 顶部Banner -->
-  <view class="banner">
-    <view class="banner-content">
-      <view class="shop-name">咖啡角</view>
-      <view class="banner-desc">今日特调，每一口都是幸福☕</view>
-    </view>
-    <view class="guide-btn" bindtap="goGuide">下单说明</view>
-  </view>
 
-  <!-- 加载状态 -->
-  <view class="loading-state" wx:if="{{loading}}">
-    <view class="loading-icon">☕</view>
-    <text>正在加载菜单...</text>
-  </view>
-
-  <!-- 分类 + 商品布局 -->
-  <view class="content-area" wx:if="{{!loading}}">
-    <!-- 左侧分类 -->
-    <scroll-view class="category-list" scroll-y>
-      <view
-        class="category-item {{activeCategory === item.id ? 'active' : ''}}"
-        wx:for="{{categories}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="onCategoryTap"
-      >{{item.name}}</view>
-    </scroll-view>
-
-    <!-- 右侧商品 -->
-    <scroll-view class="product-list" scroll-y>
-      <view wx:if="{{products.length === 0}}" class="empty-state">
-        <text class="empty-icon">☕</text>
-        <text class="empty-text">暂无商品</text>
+  <!-- ===== 审核模式：咖啡知识科普页（与下单功能完全无关） ===== -->
+  <block wx:if="{{settings.review_mode}}">
+    <view class="rv-page">
+      <view class="rv-hero">
+        <view class="rv-hero-icon">☕</view>
+        <view class="rv-hero-title">咖啡文化</view>
+        <view class="rv-hero-sub">探索咖啡的世界</view>
       </view>
-      <view class="product-card" wx:for="{{products}}" wx:key="id">
-        <image class="product-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}" />
-        <view class="product-img-empty" wx:else>☕</view>
-        <view class="product-info">
-          <view class="product-name">{{item.name}}</view>
-          <view class="product-desc" wx:if="{{item.description}}">{{item.description}}</view>
-          <view class="product-bottom">
-            <view class="product-price">
-              <text class="price-symbol">¥</text>
-              <text class="price-num">{{item.base_price}}</text>
-              <text class="price-up">起</text>
+
+      <scroll-view scroll-y class="rv-scroll">
+
+        <view class="rv-card" data-id="0" bindtap="onArticleTap">
+          <view class="rv-card-tag">起源</view>
+          <view class="rv-card-title">咖啡的历史</view>
+          <view class="rv-card-text">咖啡起源于埃塞俄比亚高原，传说一位牧羊人发现山羊吃了某种浆果后异常活跃，随后这种神奇的果实传遍了阿拉伯世界，并于16世纪经由土耳其传入欧洲，改变了整个世界的饮食文化。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+        <view class="rv-card" data-id="1" bindtap="onArticleTap">
+          <view class="rv-card-tag">品种</view>
+          <view class="rv-card-title">阿拉比卡 vs 罗布斯塔</view>
+          <view class="rv-card-text">阿拉比卡豆风味细腻、酸度优雅，香气丰富，占全球产量约60%；罗布斯塔豆苦味较重、咖啡因含量高，常用于意式拼配，赋予咖啡厚实的油脂与饱满的醇厚感。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+        <view class="rv-card" data-id="2" bindtap="onArticleTap">
+          <view class="rv-card-tag">产区</view>
+          <view class="rv-card-title">全球著名咖啡产地</view>
+          <view class="rv-card-text">埃塞俄比亚耶加雪菲以花香果香著称；哥伦比亚出产均衡甜感的水洗豆；云南保山与普洱近年崛起，以本土风味赢得国际认可；巴拿马瑰夏更是被誉为"咖啡界的顶级珍宝"。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+        <view class="rv-card" data-id="3" bindtap="onArticleTap">
+          <view class="rv-card-tag">烘焙</view>
+          <view class="rv-card-title">烘焙度的秘密</view>
+          <view class="rv-card-text">浅烘保留了豆子天然的花果酸质与风味层次，适合手冲；中烘平衡甜感与醇厚度，最为大众接受；深烘带来焦糖苦香与厚重口感，是意式浓缩的灵魂所在。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+        <view class="rv-card" data-id="4" bindtap="onArticleTap">
+          <view class="rv-card-tag">冲煮</view>
+          <view class="rv-card-title">手冲咖啡的艺术</view>
+          <view class="rv-card-text">手冲是最能体现豆子原味的冲煮方式。水温建议90–94°C，研磨度中细，注水时先焖蒸30秒激发香气，再以稳定画圈方式分段注入，整个过程约需3分钟，一杯充满层次感的手冲就此诞生。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+        <view class="rv-card" data-id="5" bindtap="onArticleTap">
+          <view class="rv-card-tag">文化</view>
+          <view class="rv-card-title">咖啡与生活方式</view>
+          <view class="rv-card-text">从意大利的站立浓缩，到北欧的第三波精品浪潮，再到中国新一代咖啡文化的兴起，咖啡早已超越饮品本身，成为一种生活态度与社交语言。每一杯咖啡，都承载着人与人之间温暖的连接。</view>
+          <view class="rv-card-arrow">阅读全文 ›</view>
+        </view>
+
+      </scroll-view>
+    </view>
+  </block>
+
+  <!-- ===== 正常模式：完整下单页 ===== -->
+  <block wx:else>
+    <!-- 顶部Banner -->
+    <view class="banner">
+      <view class="banner-content">
+        <view class="shop-name">咖啡角</view>
+        <view class="banner-desc">今日特调，每一口都是幸福☕</view>
+      </view>
+      <view class="guide-btn" bindtap="goGuide">下单说明</view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <view class="loading-icon">☕</view>
+      <text>正在加载菜单...</text>
+    </view>
+
+    <!-- 分类 + 商品布局 -->
+    <view class="content-area" wx:if="{{!loading}}">
+      <!-- 左侧分类 -->
+      <scroll-view class="category-list" scroll-y>
+        <view
+          class="category-item {{activeCategory === item.id ? 'active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onCategoryTap"
+        >{{item.name}}</view>
+      </scroll-view>
+
+      <!-- 右侧商品 -->
+      <scroll-view class="product-list" scroll-y>
+        <view wx:if="{{products.length === 0}}" class="empty-state">
+          <text class="empty-icon">☕</text>
+          <text class="empty-text">暂无商品</text>
+        </view>
+        <view class="product-card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}">
+          <image class="product-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}" />
+          <view class="product-img-empty" wx:else>☕</view>
+          <view class="product-info">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-desc" wx:if="{{item.description}}">{{item.description}}</view>
+            <view class="product-bottom">
+              <view class="product-price">
+                <text class="price-symbol">¥</text>
+                <text class="price-num">{{item.base_price}}</text>
+                <text class="price-up">起</text>
+              </view>
+              <view class="add-btn" data-product="{{item}}" catchtap="onOpenPanel">+</view>
             </view>
-            <view class="add-btn" data-product="{{item}}" catchtap="onOpenPanel">+</view>
           </view>
         </view>
+      </scroll-view>
+    </view>
+  </block>
+
+  <!-- 底部购物车栏（正常模式才显示） -->
+  <view class="cart-bar" wx:if="{{!settings.review_mode}}" bindtap="goCart">
+    <view class="cart-bar-left">
+      <view class="cart-bar-icon">
+        <text class="cart-bar-emoji">🛒</text>
+        <view class="cart-bar-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
       </view>
-    </scroll-view>
+      <text class="cart-bar-text" wx:if="{{cartCount > 0}}">已选 {{cartCount}} 件商品</text>
+      <text class="cart-bar-text empty" wx:else>购物车为空</text>
+    </view>
+    <view class="cart-bar-btn">去结算 ›</view>
   </view>
 
   <!-- 遮罩 -->
@@ -70,8 +144,8 @@
         <view class="panel-close" bindtap="onClosePanel">✕</view>
       </view>
 
-      <!-- 第一步：选参数 -->
-      <scroll-view scroll-y class="panel-scroll" wx:if="{{!showOrderForm && !orderReady}}">
+      <!-- 规格选择 -->
+      <scroll-view scroll-y class="panel-scroll">
 
         <view class="opt-section" wx:if="{{currentProduct.sizeOptions.length > 0}}">
           <text class="opt-title">杯型</text>
@@ -127,6 +201,18 @@
           </view>
         </view>
 
+        <!-- 杯形+包装双图区 -->
+        <view class="product-images-row" wx:if="{{currentSizeImage || currentProduct.package_image}}">
+          <view class="product-img-item" wx:if="{{currentSizeImage}}">
+            <image src="{{currentSizeImage}}" mode="aspectFill" class="product-img-thumb" />
+            <text class="product-img-label">{{selectedSize.name || ''}}</text>
+          </view>
+          <view class="product-img-item" wx:if="{{currentProduct.package_image}}">
+            <image src="{{currentProduct.package_image}}" mode="aspectFill" class="product-img-thumb" />
+            <text class="product-img-label">包装</text>
+          </view>
+        </view>
+
         <view class="opt-section quantity-row">
           <text class="opt-title">数量</text>
           <view class="qty-ctrl">
@@ -135,64 +221,24 @@
             <view class="qty-btn" bindtap="onQuantityPlus">+</view>
           </view>
         </view>
+
+        <view class="opt-section remark-section">
+          <text class="opt-title">备注</text>
+          <input
+            class="remark-input"
+            placeholder="如：加浓缩、少量奶泳等..."
+            value="{{remark}}"
+            bindinput="onRemarkInput"
+            maxlength="50"
+          />
+        </view>
         <view style="height: 20rpx;"></view>
       </scroll-view>
 
-      <!-- 第二步：填地址 -->
-      <view class="order-form" wx:if="{{showOrderForm && !orderReady}}">
-        <view class="form-tips">📝 填写收货信息后即可生成订单发到群里</view>
-        <view class="form-row">
-          <text class="form-label">姓名</text>
-          <input class="form-input" placeholder="您的称呼" bindinput="onNameInput" value="{{customerName}}" />
-        </view>
-
-        <!-- 地址：微信选择 + 补充门牌 -->
-        <view class="form-row addr-pick-row" bindtap="onChooseAddress">
-          <text class="form-label">地址</text>
-          <view class="addr-pick-btn" wx:if="{{!chosenAddress}}">
-            <text class="addr-pick-icon">📍</text>
-            <text class="addr-pick-text">点击选择微信地址</text>
-            <text class="addr-pick-arrow">›</text>
-          </view>
-          <view class="addr-chosen" wx:else>
-            <text class="addr-chosen-name">{{chosenAddress.userName}} {{chosenAddress.telNumber}}</text>
-            <text class="addr-chosen-detail">{{chosenAddress.provinceName}}{{chosenAddress.cityName}}{{chosenAddress.countyName}}{{chosenAddress.detailInfo}}</text>
-            <text class="addr-reselect">重选 ›</text>
-          </view>
-        </view>
-
-        <!-- 补充门牌号（始终显示） -->
-        <view class="form-row">
-          <text class="form-label">备注</text>
-          <input
-            class="form-input"
-            placeholder="楼栋/单元/房号/备注（选填）"
-            bindinput="onDetailInput"
-            value="{{addressDetail}}"
-          />
-        </view>
-      </view>
-
-      <!-- 第三步：订单确认 -->
-      <view class="order-summary" wx:if="{{orderReady && orderSummary}}">
-        <view class="summary-title">📋 订单详情</view>
-        <view class="summary-card">
-          <view class="summary-line" wx:for="{{orderSummary.lines}}" wx:key="*this">{{item}}</view>
-        </view>
-        <view class="summary-tip">将订单发到群里 → 完成付款 → 等待配送 🚀</view>
-      </view>
-
       <!-- 底部按钮 -->
       <view class="panel-footer">
-        <view class="btn-full" bindtap="onConfirmOptions" wx:if="{{!showOrderForm && !orderReady}}">
-          确认选项 · ¥{{totalPrice}}
-        </view>
-        <view class="btn-full" bindtap="onGenerateOrder" wx:if="{{showOrderForm && !orderReady}}">
-          生成订单
-        </view>
-        <view class="btn-row" wx:if="{{orderReady}}">
-          <view class="btn-copy" bindtap="onCopyOrder">📋 复制订单</view>
-          <button class="btn-share" open-type="share">📤 转发到群</button>
+        <view class="btn-full" bindtap="onAddToCart">
+          加入购物车 · ¥{{totalPrice}}
         </view>
       </view>
 

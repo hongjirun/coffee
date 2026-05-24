@@ -1,6 +1,6 @@
 // 本地开发调试地址（微信开发者工具需勾选"不校验合法域名"）
 // 上线后替换为: 'https://你的域名/api'
-const BASE_URL = 'https://api.xianshihuodong.xyz/api'
+const BASE_URL = 'http://localhost:3000/api'
 
 App({
   globalData: {

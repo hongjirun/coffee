@@ -6,16 +6,25 @@ Page({
     products: [],
     activeCategory: 0,
     loading: true,
+    // 功能开关
+    settings: {
+      normal_mode: true,
+      review_mode: false
+    },
+    allProducts: [], // 审核模式展示全部商品
+    cartCount: 0,
 
     // 弹窗相关
     showPanel: false,
     currentProduct: null,
+    currentSizeImage: '',
     selectedSize: null,
     selectedSugar: null,
     selectedIce: null,
     selectedAddons: [],
     quantity: 1,
     totalPrice: '0.00',
+    remark: '',
 
     // 下单信息
     showOrderForm: false,
@@ -28,6 +37,44 @@ Page({
 
   onLoad() {
     this.loadCategories()
+    this.loadSettings()
+  },
+
+  onShow() {
+    this.loadSettings()
+    this.updateCartCount()
+  },
+
+  updateCartCount() {
+    const app = getApp()
+    this.setData({ cartCount: app.getCartCount() })
+  },
+
+  async loadSettings() {
+    try {
+      const res = await request('/settings')
+      const normalMode = res.data.normal_mode !== 'false'
+      const reviewMode = res.data.review_mode === 'true'
+      this.setData({
+        'settings.normal_mode': normalMode,
+        'settings.review_mode': reviewMode
+      })
+      if (reviewMode) {
+        this.loadAllProducts()
+      }
+    } catch(err) {
+      this.setData({
+        'settings.normal_mode': true,
+        'settings.review_mode': false
+      })
+    }
+  },
+
+  async loadAllProducts() {
+    try {
+      const res = await request('/products/active')
+      this.setData({ allProducts: res.data })
+    } catch {}
   },
 
   onShareAppMessage() {
@@ -69,6 +116,54 @@ Page({
     this.loadProducts(id)
   },
 
+  // 点击科普文章卡片
+  onArticleTap(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: `/pages/article/article?id=${id}` })
+  },
+
+  // 点击商品卡片（审核模式跳详情，正常模式不处理）
+  onProductTap(e) {
+    if (this.data.settings.review_mode) {
+      const id = e.currentTarget.dataset.id
+      wx.navigateTo({ url: `/pages/product/product?id=${id}&review=1` })
+    }
+  },
+
+  // 加入购物车
+  onAddToCart() {
+    const { currentProduct, selectedSize, selectedSugar, selectedIce, selectedAddons, quantity, totalPrice } = this.data
+    if (currentProduct.sizeOptions.length > 0 && !selectedSize) {
+      wx.showToast({ title: '请选择杯型', icon: 'none' }); return
+    }
+    if (currentProduct.sugarOptions.length > 0 && !selectedSugar) {
+      wx.showToast({ title: '请选择糖度', icon: 'none' }); return
+    }
+    if (currentProduct.iceOptions.length > 0 && !selectedIce) {
+      wx.showToast({ title: '请选择温度/冰度', icon: 'none' }); return
+    }
+    const app = getApp()
+    app.addToCart({
+      product_id: currentProduct.id,
+      product_name: currentProduct.name,
+      product_image: currentProduct.image || null,
+      size: selectedSize || null,
+      sugar: selectedSugar ? selectedSugar.name : null,
+      ice: selectedIce ? selectedIce.name : null,
+      addons: selectedAddons,
+      remark: this.data.remark || '',
+      quantity,
+      unit_price: (parseFloat(totalPrice) / quantity).toFixed(2)
+    })
+    this.updateCartCount()
+    this.setData({ showPanel: false, remark: '' })
+    wx.showToast({ title: '已加入购物车', icon: 'success' })
+  },
+
+  goCart() {
+    wx.navigateTo({ url: '/pages/cart/cart' })
+  },
+
   // 点击 + 号打开选项面板
   onOpenPanel(e) {
     const product = e.currentTarget.dataset.product
@@ -95,6 +190,8 @@ Page({
       selectedIce: defaultIce,
       selectedAddons: [],
       quantity: 1,
+      remark: '',
+      currentSizeImage: defaultSize?.name === '大杯' ? (product.large_image || '') : (product.medium_image || ''),
       showOrderForm: false,
       orderReady: false,
       customerName: '',
@@ -127,7 +224,10 @@ Page({
   },
 
   onSelectSize(e) {
-    this.setData({ selectedSize: e.currentTarget.dataset.item })
+    const size = e.currentTarget.dataset.item
+    const product = this.data.currentProduct
+    const currentSizeImage = size?.name === '大杯' ? (product.large_image || '') : (product.medium_image || '')
+    this.setData({ selectedSize: size, currentSizeImage })
     this._calcPrice()
   },
 
@@ -160,8 +260,12 @@ Page({
     this._calcPrice()
   },
 
+  onRemarkInput(e) {
+    this.setData({ remark: e.detail.value })
+  },
+
   onClosePanel() {
-    this.setData({ showPanel: false, showOrderForm: false, orderReady: false })
+    this.setData({ showPanel: false, showOrderForm: false, orderReady: false, remark: '' })
   },
 
   // 点「确认选择」→ 展示地址填写
@@ -246,8 +350,8 @@ Page({
         `➕ 加料：${addonStr}`,
         `🔢 数量：${quantity} 杯`,
         `💰 金额：¥${totalPrice}`,
-        `👤 收件人：${fullName}`,
-        `📍 地址：${fullAddr}`,
+        `👤 收件人：******`,
+        `📍 地址：******`,
         `🔖 订单号：${orderNo}`
       ]
 

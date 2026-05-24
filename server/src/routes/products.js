@@ -123,7 +123,7 @@ router.get('/:id', async (req, res) => {
 // 上传商品图片
 router.post('/upload', authMiddleware, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ code: 400, message: '请选择图片' });
-  const host = `${req.protocol}://${req.get('host')}`;
+  const host = process.env.API_BASE_URL || `${req.protocol}://${req.get('x-forwarded-host') || req.get('host')}`;
   const url = `${host}/uploads/${req.file.filename}`;
   res.json({ code: 200, data: { url }, message: '上传成功' });
 });
@@ -132,7 +132,7 @@ router.post('/upload', authMiddleware, upload.single('image'), (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const {
-      category_id, name, description, image, base_price,
+      category_id, name, description, image, medium_image = '', large_image = '', package_image = '', base_price,
       is_active = 1, sort_order = 0,
       sugar_options = [], ice_options = [], size_options = [], addon_options = []
     } = req.body;
@@ -140,10 +140,10 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ code: 400, message: '分类、名称和价格不能为空' });
     }
     const [result] = await db.execute(
-      `INSERT INTO products (category_id, name, description, image, base_price, is_active, sort_order, sugar_options, ice_options, size_options, addon_options)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO products (category_id, name, description, image, medium_image, large_image, package_image, base_price, is_active, sort_order, sugar_options, ice_options, size_options, addon_options)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        category_id, name, description, image, base_price, is_active, sort_order,
+        category_id, name, description, image, medium_image, large_image, package_image, base_price, is_active, sort_order,
         JSON.stringify(sugar_options), JSON.stringify(ice_options),
         JSON.stringify(size_options), JSON.stringify(addon_options)
       ]
@@ -158,16 +158,16 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const {
-      category_id, name, description, image, base_price,
+      category_id, name, description, image, medium_image = '', large_image = '', package_image = '', base_price,
       is_active, sort_order,
       sugar_options, ice_options, size_options, addon_options
     } = req.body;
     await db.execute(
-      `UPDATE products SET category_id=?, name=?, description=?, image=?, base_price=?,
+      `UPDATE products SET category_id=?, name=?, description=?, image=?, medium_image=?, large_image=?, package_image=?, base_price=?,
        is_active=?, sort_order=?, sugar_options=?, ice_options=?, size_options=?, addon_options=?
        WHERE id=?`,
       [
-        category_id, name, description, image, base_price,
+        category_id, name, description, image, medium_image, large_image, package_image, base_price,
         is_active, sort_order,
         JSON.stringify(sugar_options), JSON.stringify(ice_options),
         JSON.stringify(size_options), JSON.stringify(addon_options),
@@ -196,10 +196,11 @@ router.patch('/:id/toggle', authMiddleware, async (req, res) => {
 // 删除商品
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    await db.execute('DELETE FROM order_items WHERE product_id = ?', [req.params.id]);
     await db.execute('DELETE FROM products WHERE id = ?', [req.params.id]);
     res.json({ code: 200, message: '删除成功' });
   } catch (err) {
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    res.status(500).json({ code: 500, message: '服务器错误', error: err.message });
   }
 });
 

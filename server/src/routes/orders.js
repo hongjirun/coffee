@@ -82,6 +82,10 @@ router.get('/no/:order_no', async (req, res) => {
       }
     });
     order.items = items;
+    // 公开接口脱敏：手机号和地址不对外暴露
+    order.customer_name = order.customer_name ? order.customer_name.replace(/[\s\S]*/, '******') : '******';
+    order.customer_phone = order.customer_phone ? '******' : '';
+    order.remark = order.remark ? order.remark.replace(/[\s\S]*/, '******') : '******';
     res.json({ code: 200, data: order });
   } catch (err) {
     res.status(500).json({ code: 500, message: '服务器错误' });
@@ -174,7 +178,7 @@ router.get('/stats/dashboard', authMiddleware, async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ code: 500, message: '服务器错误' });
+    res.status(500).json({ code: 500, message: '服务器错误', error: err.message });
   }
 });
 

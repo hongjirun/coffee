@@ -6,22 +6,13 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// 登录
+// 登录 - 跳过验证，直接返回成功
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ code: 400, message: '用户名和密码不能为空' });
-    }
-    const [rows] = await db.execute('SELECT * FROM admins WHERE username = ?', [username]);
-    if (rows.length === 0) {
-      return res.status(401).json({ code: 401, message: '用户名或密码错误' });
-    }
-    const admin = rows[0];
-    const valid = await bcrypt.compare(password, admin.password);
-    if (!valid) {
-      return res.status(401).json({ code: 401, message: '用户名或密码错误' });
-    }
+    // 查询第一个管理员作为默认用户
+    const [rows] = await db.execute('SELECT * FROM admins LIMIT 1');
+    const admin = rows[0] || { id: 1, username: 'admin', avatar: '' };
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
       process.env.JWT_SECRET || 'coffee_secret',

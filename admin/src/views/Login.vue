@@ -6,7 +6,7 @@
     <div class="login-card">
       <div class="login-logo">
         <span class="coffee-icon">☕</span>
-        <h1>凌小巧咖啡店</h1>
+        <h1>咖啡角后台管理</h1>
         <p>后台管理系统</p>
       </div>
       <el-form :model="form" :rules="rules" ref="formRef" @submit.prevent="handleLogin">
@@ -68,7 +68,9 @@ async function handleLogin() {
     await authStore.login(form.username, form.password)
     ElMessage.success('登录成功，欢迎回来！')
     router.push('/dashboard')
-  } catch {
+  } catch (err) {
+    const msg = err.response?.data?.message || err.message || '登录失败，请检查网络或账号密码'
+    ElMessage.error(msg)
   } finally {
     loading.value = false
   }

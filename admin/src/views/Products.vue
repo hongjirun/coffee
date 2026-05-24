@@ -165,25 +165,29 @@
         </el-form-item>
 
         <el-form-item label="商品图片">
-          <div class="upload-area">
-            <el-upload
-              accept="image/*"
-              :show-file-list="false"
-              :before-upload="beforeUpload"
-              :http-request="handleUpload"
-            >
-              <div class="upload-btn" v-if="!form.image">
-                <el-icon :size="32"><Plus /></el-icon>
-                <span>上传图片</span>
-              </div>
-              <div class="img-preview" v-else>
-                <img :src="form.image" />
-                <div class="img-overlay" @click.stop="form.image = ''">
-                  <el-icon><Delete /></el-icon>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div v-for="img in imageFields" :key="img.field" class="img-upload-block">
+              <div class="img-upload-label">{{ img.label }}</div>
+              <el-upload
+                accept="image/*"
+                :show-file-list="false"
+                :before-upload="beforeUpload"
+                :http-request="(opt) => handleUploadField(opt, img.field)"
+              >
+                <div class="upload-btn" v-if="!form[img.field]">
+                  <el-icon :size="28"><Plus /></el-icon>
+                  <span>{{ img.label }}</span>
                 </div>
-              </div>
-            </el-upload>
+                <div class="img-preview" v-else>
+                  <img :src="form[img.field]" />
+                  <div class="img-overlay" @click.stop="form[img.field] = ''">
+                    <el-icon><Delete /></el-icon>
+                  </div>
+                </div>
+              </el-upload>
+            </div>
           </div>
+          <div style="margin-top:6px;color:#999;font-size:12px;">商品图：列表封面图 &nbsp;|&nbsp; 中杯图/大杯图：详情页随杯型切换 &nbsp;|&nbsp; 包装图：固定展示</div>
         </el-form-item>
 
         <!-- 规格配置 -->
@@ -245,17 +249,23 @@
           </el-col>
         </el-row>
 
-        <!-- 规格（带价格） -->
+        <!-- 杯型规格（写死中杯/大杯，只开放加价修改） -->
         <el-form-item label="杯型规格">
           <div class="size-editor">
-            <div v-for="(s, i) in form.size_options" :key="i" class="size-item">
-              <el-input v-model="s.name" placeholder="规格名" size="small" style="width: 90px" />
-              <el-input v-model.number="s.price" placeholder="加价" size="small" style="width: 80px">
+            <div class="size-item">
+              <span class="size-fixed-name">中杯 360ml</span>
+              <el-input-number v-model="form.size_options[0].price" :min="0" :precision="2" :step="1" size="small" style="width:130px">
                 <template #prefix>+¥</template>
-              </el-input>
-              <el-button :icon="Delete" size="small" text type="danger" @click="form.size_options.splice(i,1)" />
+              </el-input-number>
+              <span style="color:#999;font-size:12px;">加价（0=不加价）</span>
             </div>
-            <el-button size="small" @click="form.size_options.push({ name: '', price: 0 })">+ 添加规格</el-button>
+            <div class="size-item">
+              <span class="size-fixed-name">大杯 500ml</span>
+              <el-input-number v-model="form.size_options[1].price" :min="0" :precision="2" :step="1" size="small" style="width:130px">
+                <template #prefix>+¥</template>
+              </el-input-number>
+              <span style="color:#999;font-size:12px;">加价（0=不加价）</span>
+            </div>
           </div>
         </el-form-item>
 
@@ -318,17 +328,27 @@ const iceInputVisible = ref(false)
 const iceInputVal = ref('')
 const iceInputRef = ref()
 
+const imageFields = [
+  { field: 'image', label: '商品图' },
+  { field: 'medium_image', label: '中杯图' },
+  { field: 'large_image', label: '大杯图' },
+  { field: 'package_image', label: '包装图' }
+]
+
 const defaultForm = () => ({
   category_id: '',
   name: '',
   description: '',
   image: '',
+  medium_image: '',
+  large_image: '',
+  package_image: '',
   base_price: 0,
   is_active: 1,
   sort_order: 0,
   sugar_options: ['无糖', '少糖', '半糖', '七分糖', '全糖'],
   ice_options: ['去冰', '少冰', '正常冰', '多冰'],
-  size_options: [{ name: '中杯', price: 0 }, { name: '大杯', price: 5 }],
+  size_options: [{ name: '中杯', label: '中杯 360ml', price: 0 }, { name: '大杯', label: '大杯 500ml', price: 5 }],
   addon_options: []
 })
 
@@ -374,17 +394,25 @@ function openDialog(row = null) {
   editingId.value = row?.id || null
   const def = defaultForm()
   if (row) {
+    const existingSizes = row.size_options || []
+    const sizeOptions = [
+      { name: '中杯', label: '中杯 360ml', price: parseFloat(existingSizes[0]?.price ?? 0) },
+      { name: '大杯', label: '大杯 500ml', price: parseFloat(existingSizes[1]?.price ?? 5) }
+    ]
     Object.assign(form, {
       category_id: row.category_id,
       name: row.name,
       description: row.description || '',
       image: row.image || '',
+      medium_image: row.medium_image || '',
+      large_image: row.large_image || '',
+      package_image: row.package_image || '',
       base_price: parseFloat(row.base_price),
       is_active: row.is_active,
       sort_order: row.sort_order,
       sugar_options: [...(row.sugar_options || def.sugar_options)],
       ice_options: [...(row.ice_options || def.ice_options)],
-      size_options: JSON.parse(JSON.stringify(row.size_options || def.size_options)),
+      size_options: sizeOptions,
       addon_options: JSON.parse(JSON.stringify(row.addon_options || []))
     })
   } else {
@@ -446,6 +474,16 @@ async function handleUpload({ file }) {
   } catch {}
 }
 
+async function handleUploadField({ file }, field) {
+  const fd = new FormData()
+  fd.append('image', file)
+  try {
+    const res = await productApi.upload(fd)
+    form[field] = res.data.url
+    ElMessage.success('上传成功')
+  } catch {}
+}
+
 onMounted(() => { loadData(); loadCategories() })
 </script>
 
@@ -486,6 +524,18 @@ onMounted(() => { loadData(); loadCategories() })
 
 .size-editor { display: flex; flex-direction: column; gap: 8px; }
 .size-item { display: flex; align-items: center; gap: 8px; }
+
+.size-fixed-name {
+  display: inline-block; width: 90px; font-size: 13px;
+  font-weight: 600; color: #6b4226;
+}
+
+.img-upload-block {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.img-upload-label {
+  font-size: 12px; color: #666; font-weight: 600;
+}
 
 /* 桌面端/移动端切换 */
 .desktop-table { display: table; }
