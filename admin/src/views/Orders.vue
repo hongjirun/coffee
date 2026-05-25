@@ -147,8 +147,12 @@
           </div>
           <div class="meta-row" v-if="currentOrder.remark">
             <span class="meta-label">地址</span>
-            <span class="meta-val" style="color: #e6a23c; flex: 1;">{{ currentOrder.remark }}<span v-if="currentOrder.customer_note" style="color: #606266; margin-left: 8px;">（备注：{{ currentOrder.customer_note }}）</span></span>
-            <el-button size="small" type="primary" plain @click="copyAddress(currentOrder.remark + (currentOrder.customer_note ? '（备注：' + currentOrder.customer_note + '）' : ''))" style="margin-left: 8px; flex-shrink: 0;">📋 复制地址</el-button>
+            <span class="meta-val addr-text">{{ currentOrder.remark }}</span>
+            <el-button size="small" type="primary" plain @click="copyAddress(currentOrder.remark + (currentOrder.customer_note ? ' （备注：' + currentOrder.customer_note + '）' : ''))" style="margin-left: 8px; flex-shrink: 0;">📋 复制地址</el-button>
+          </div>
+          <div class="meta-row note-row" v-if="currentOrder.customer_note">
+            <span class="meta-label">地址备注</span>
+            <span class="meta-val" style="color: #e6813a; font-weight: 500;">{{ currentOrder.customer_note }}</span>
           </div>
           <div class="meta-row">
             <span class="meta-label">下单时间</span>
@@ -173,7 +177,7 @@
                   <span v-for="a in item.addons" :key="a.name">加{{ a.name }}</span>
                 </template>
               </div>
-              <div class="item-note" v-if="item.item_note" style="color: #e6a23c; font-size: 12px; margin-top: 4px;">备注：{{ item.item_note }}</div>
+              <div class="item-note" v-if="item.item_note"><span class="note-tag">📌 备注</span>{{ item.item_note }}</div>
               <div class="item-price-row">
                 <span class="item-qty">x{{ item.quantity }}</span>
                 <span class="item-price">¥{{ item.subtotal }}</span>
@@ -339,6 +343,30 @@ onMounted(loadData)
   background: #f0e6da; color: #6b4226;
   padding: 1px 8px; border-radius: 10px; font-size: 11px;
 }
+
+.item-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #e6813a;
+}
+.note-tag {
+  background: #fff3e0;
+  color: #e6813a;
+  border: 1px solid #f5cfa0;
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.addr-text { color: #333; word-break: break-all; flex: 1; }
+
+.note-row .meta-label { color: #e6813a; }
+.note-row .meta-val { color: #e6813a; font-weight: 500; }
 
 .item-price-row { display: flex; justify-content: space-between; }
 .item-qty { color: #999; font-size: 13px; }

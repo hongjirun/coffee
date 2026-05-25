@@ -208,6 +208,7 @@ Page({
         if (sizeName || item.sugar || item.ice) {
           lines.push(`   ${[sizeName, item.ice, item.sugar, addonStr].filter(Boolean).join(' / ')}`)
         }
+        if (item.item_note) lines.push(`   📌 商品备注：${item.item_note}`)
       })
       lines.push(`💰 合计：¥${res.data.total_amount}`)
       // 收件人和地址对群里显示星号，保护隐私
@@ -217,7 +218,7 @@ Page({
       } else if (customerName) {
         lines.push(`👤 姓名：******`)
       }
-      if (remark) lines.push(`📝 备注：${remark}`)
+      if (remark) lines.push(`📝 地址备注：${remark}`)
       lines.push(`🔖 订单号：${orderNo}`)
 
       this.setData({

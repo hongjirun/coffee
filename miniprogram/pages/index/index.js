@@ -151,7 +151,7 @@ Page({
       sugar: selectedSugar ? selectedSugar.name : null,
       ice: selectedIce ? selectedIce.name : null,
       addons: selectedAddons,
-      remark: this.data.remark || '',
+      item_note: this.data.remark || '',
       quantity,
       unit_price: (parseFloat(totalPrice) / quantity).toFixed(2)
     })
