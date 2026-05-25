@@ -47,6 +47,7 @@
             <text wx:if="{{item.ice}}">{{item.ice}}</text>
             <text wx:for="{{item.addons}}" wx:key="name" wx:for-item="addon">+{{addon.name}}</text>
           </view>
+          <view class="item-note" wx:if="{{item.item_note}}" style="color: #e6a23c; font-size: 12px;">备注：{{item.item_note}}</view>
           <view class="item-price-row">
             <text class="item-price">¥{{item.unit_price}}/杯</text>
             <view class="qty-controls">

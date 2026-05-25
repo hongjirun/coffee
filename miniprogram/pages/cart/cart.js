@@ -82,6 +82,7 @@ Page({
 
   loadCart() {
     const cart = app.globalData.cart
+    console.log('Cart data:', JSON.stringify(cart, null, 2))
     this.setData({ cart })
     this.calcTotal(cart)
   },
@@ -148,6 +149,10 @@ Page({
       wx.showToast({ title: '购物车为空', icon: 'none' })
       return
     }
+    if (!chosenAddress) {
+      wx.showToast({ title: '请选择收货地址', icon: 'none' })
+      return
+    }
     if (this.data.submitting) return
     this.setData({ submitting: true })
 
@@ -161,7 +166,8 @@ Page({
         sugar: item.sugar,
         ice: item.ice,
         addons: item.addons,
-        quantity: item.quantity
+        quantity: item.quantity,
+        item_note: item.item_note || ''
       }))
 
       const baseAddr = chosenAddress
@@ -174,7 +180,8 @@ Page({
       const res = await request('/orders', 'POST', {
         customer_name: fullName || customerName,
         customer_phone: chosenAddress ? chosenAddress.telNumber : '',
-        remark: baseAddr ? `地址：${baseAddr}${remark ? ' ' + remark : ''}` : remark,
+        remark: baseAddr,
+        customer_note: remark || '',
         items
       })
 

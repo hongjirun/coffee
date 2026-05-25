@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
-    const { customer_name, customer_phone, remark, items } = req.body;
+    const { customer_name, customer_phone, remark, customer_note, items } = req.body;
     if (!items || items.length === 0) {
       return res.status(400).json({ code: 400, message: '订单不能为空' });
     }
@@ -39,22 +39,23 @@ router.post('/', async (req, res) => {
 
     const orderNo = generateOrderNo();
     const [orderResult] = await conn.execute(
-      'INSERT INTO orders (order_no, customer_name, customer_phone, remark, total_amount) VALUES (?, ?, ?, ?, ?)',
-      [orderNo, customer_name, customer_phone, remark, totalAmount.toFixed(2)]
+      'INSERT INTO orders (order_no, customer_name, customer_phone, remark, customer_note, total_amount) VALUES (?, ?, ?, ?, ?, ?)',
+      [orderNo, customer_name, customer_phone, remark, customer_note || '', totalAmount.toFixed(2)]
     );
     const orderId = orderResult.insertId;
 
     for (const item of items) {
       await conn.execute(
-        `INSERT INTO order_items (order_id, product_id, product_name, product_image, size, sugar, ice, addons, quantity, unit_price, subtotal)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO order_items (order_id, product_id, product_name, product_image, size, sugar, ice, addons, quantity, unit_price, subtotal, item_note)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           orderId, item.product_id, item.product_name, item.product_image,
           item.size ? (typeof item.size === 'object' ? item.size.name : item.size) : null,
           item.sugar || null, item.ice || null,
           JSON.stringify(item.addons || []),
           item.quantity, item._finalPrice.toFixed(2),
-          (item._finalPrice * item.quantity).toFixed(2)
+          (item._finalPrice * item.quantity).toFixed(2),
+          item.item_note || ''
         ]
       );
     }

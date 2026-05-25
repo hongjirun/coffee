@@ -13,7 +13,8 @@ Page({
     selectedAddons: [],
     quantity: 1,
     totalPrice: 0,
-    currentSizeImage: ''
+    currentSizeImage: '',
+    itemNote: ''
   },
 
   onLoad(options) {
@@ -94,8 +95,12 @@ Page({
     return this.data.selectedAddons.some(a => a.name === addonName)
   },
 
+  onNoteInput(e) {
+    this.setData({ itemNote: e.detail.value })
+  },
+
   addToCart() {
-    const { product, selectedSize, selectedSugar, selectedIce, selectedAddons, quantity, totalPrice } = this.data
+    const { product, selectedSize, selectedSugar, selectedIce, selectedAddons, quantity, totalPrice, itemNote } = this.data
     if (!selectedSugar && product.sugar_options && product.sugar_options.length > 0) {
       wx.showToast({ title: '请选择糖度', icon: 'none' }); return
     }
@@ -116,8 +121,10 @@ Page({
       sugar: selectedSugar,
       ice: selectedIce,
       addons: selectedAddons,
-      quantity
+      quantity,
+      item_note: itemNote || ''
     }
+    console.log('Adding to cart:', JSON.stringify(item, null, 2))
 
     app.addToCart(item)
     wx.showToast({ title: '已加入购物车', icon: 'success' })

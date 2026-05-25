@@ -46,7 +46,11 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column prop="remark" label="地址" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ row.remark?.replace(/^地址：/, '') || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column label="下单时间" width="160">
           <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
         </el-table-column>
@@ -142,9 +146,9 @@
             <span :class="['status-badge', currentOrder.status]">{{ statusMap[currentOrder.status] }}</span>
           </div>
           <div class="meta-row" v-if="currentOrder.remark">
-            <span class="meta-label">备注</span>
-            <span class="meta-val" style="color: #e6a23c; flex: 1;">{{ currentOrder.remark }}</span>
-            <el-button size="small" type="primary" plain @click="copyAddress(currentOrder.remark.replace(/^地址：/, ''))" style="margin-left: 8px; flex-shrink: 0;">📋 复制地址</el-button>
+            <span class="meta-label">地址</span>
+            <span class="meta-val" style="color: #e6a23c; flex: 1;">{{ currentOrder.remark }}<span v-if="currentOrder.customer_note" style="color: #606266; margin-left: 8px;">（备注：{{ currentOrder.customer_note }}）</span></span>
+            <el-button size="small" type="primary" plain @click="copyAddress(currentOrder.remark + (currentOrder.customer_note ? '（备注：' + currentOrder.customer_note + '）' : ''))" style="margin-left: 8px; flex-shrink: 0;">📋 复制地址</el-button>
           </div>
           <div class="meta-row">
             <span class="meta-label">下单时间</span>
@@ -169,6 +173,7 @@
                   <span v-for="a in item.addons" :key="a.name">加{{ a.name }}</span>
                 </template>
               </div>
+              <div class="item-note" v-if="item.item_note" style="color: #e6a23c; font-size: 12px; margin-top: 4px;">备注：{{ item.item_note }}</div>
               <div class="item-price-row">
                 <span class="item-qty">x{{ item.quantity }}</span>
                 <span class="item-price">¥{{ item.subtotal }}</span>

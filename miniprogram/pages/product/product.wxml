@@ -118,6 +118,15 @@
         <view class="qty-btn" data-type="plus" bindtap="onQuantityChange">+</view>
       </view>
     </view>
+
+    <!-- 商品备注 -->
+    <view class="option-section">
+      <view class="option-title">
+        <text class="option-label">备注</text>
+        <text class="option-optional">可选</text>
+      </view>
+      <input class="note-input" placeholder="如：少糖、少冰等" value="{{itemNote}}" bindinput="onNoteInput" />
+    </view>
   </view>
 
   <!-- 底部加购栏（审核模式隐藏） -->
