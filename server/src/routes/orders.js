@@ -26,13 +26,7 @@ router.post('/', async (req, res) => {
 
     let totalAmount = 0;
     for (const item of items) {
-      let unitPrice = parseFloat(item.unit_price);
-      if (item.size && typeof item.size === 'object' && item.size.price) {
-        unitPrice += parseFloat(item.size.price);
-      }
-      if (item.addons && Array.isArray(item.addons)) {
-        item.addons.forEach(addon => { unitPrice += parseFloat(addon.price || 0); });
-      }
+      const unitPrice = parseFloat(item.unit_price);
       item._finalPrice = unitPrice;
       totalAmount += unitPrice * item.quantity;
     }

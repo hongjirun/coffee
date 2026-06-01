@@ -1,5 +1,7 @@
-// 线上 API 地址
-const BASE_URL = 'https://api.xianshihuodong.xyz/api'
+// ⚠️ 本地开发用下面这行，上线前必须切换回线上地址
+const BASE_URL = 'http://localhost:3000/api'
+// ⚠️ 线上地址（提交审核/上线时才启用，平时注释掉）
+// const BASE_URL = 'https://api.xianshihuodong.xyz/api'
 
 App({
   globalData: {
